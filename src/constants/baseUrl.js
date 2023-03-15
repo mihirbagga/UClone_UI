@@ -1,0 +1,1 @@
+export const API_RESOURCE_URL = `${process.env.REACT_APP_API_RESOURCE_URL}`;

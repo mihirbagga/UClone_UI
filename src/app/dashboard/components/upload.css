@@ -1,0 +1,33 @@
+.upload_card
+{
+    width: 100%;
+    height: 530px;    
+    box-shadow: 1px 1px 14px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+.button_upload
+{
+    width: 204px;
+    height: 32px;
+    background: #093185;
+    border-radius: 4px;
+    color: white;
+}
+.header
+{
+    width: 100%;
+    height: 70px;
+    background: #EAF7FF;
+    box-shadow: 1px 1px 14px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+.header_font
+{
+    font-family: 'ITC Avant Garde';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 24px;
+    text-transform: uppercase;
+    color: #252525;
+}
