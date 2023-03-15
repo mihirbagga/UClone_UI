@@ -56,16 +56,16 @@ export default function FileUpload() {
             strokeWidth: 3,
             format: percent => `${parseFloat(percent.toFixed(2))}%`,
         },
-        beforeUpload: (file) => {
-            console.log(file)
-            const isWav = file.type === "audio/wav" || file.type === "video/mp4";
+        // beforeUpload: (file) => {
+        //     console.log(file)
+        //     const isWav = file.type === "audio/wav" || file.type === "video/mp4";
 
-            if (!isWav) {
-                message.error(`${file.name} is not supported`);
-            }
-            console.log(isWav || Upload.LIST_IGNORE)
-            return isWav || Upload.LIST_IGNORE;
-        }
+        //     if (!isWav) {
+        //         message.error(`${file.name} is not supported`);
+        //     }
+        //     console.log(isWav || Upload.LIST_IGNORE)
+        //     return isWav || Upload.LIST_IGNORE;
+        // }
     };
     const handleSubmit = async () => {
         setLoading(true)
