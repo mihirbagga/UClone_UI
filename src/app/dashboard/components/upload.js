@@ -59,7 +59,6 @@ export default function FileUpload() {
         // beforeUpload: (file) => {
         //     console.log(file)
         //     const isWav = file.type === "audio/wav" || file.type === "video/mp4";
-
         //     if (!isWav) {
         //         message.error(`${file.name} is not supported`);
         //     }
@@ -86,8 +85,8 @@ export default function FileUpload() {
         try {
             if (result.audio && result.video) {
                 console.log(audioName, videoName)
-                let audio_split = audioName.split('.')
-                let video_split = videoName.split('.')
+                let audio_split = audioFile.name.split('.')
+                let video_split = videoFile.name.split('.')
 
                 let req = {
                     video_filename: video_split[0],
