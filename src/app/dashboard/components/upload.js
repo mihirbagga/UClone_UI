@@ -9,6 +9,9 @@ export default function FileUpload() {
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
     const [fileList, setFileList] = useState([])
+    const [audioName, setAudioName] = useState('')
+    const [videoName, setVideoName] = useState('')
+
 
     const dummyRequest = ({ file, onSuccess }) => {
         setTimeout(() => {
@@ -37,7 +40,14 @@ export default function FileUpload() {
     const onChange = info => {
         console.log(info)
         setFileList(info.fileList)
+        // let formData = new FormData();
+
+        // formData.append('audio', info.file.originFileObj)
+        // console.log(formData)
+        // let result = upload(formData)
+
     }
+
 
 
     const props = {
@@ -64,29 +74,38 @@ export default function FileUpload() {
         }
     };
     const handleSubmit = () => {
-        let formData = new FormData();
+        if ((fileList[0].name.split('.')[1] == 'wav' || fileList[1].name.split('.')[1] == 'wav') && (fileList[1].name.split('.')[1] == 'mp4' || fileList[0].name.split('.')[1] == 'mp4' || fileList[1].name.split('.')[1] == 'mov' || fileList[0].name.split('.')[1] == 'mov')) {
+            let formData = new FormData();
+            if (fileList[0]?.name) {
+                let name = fileList[0].name.split('.')
+                if (name[1] == 'wav') {
+                    formData.append('audio', fileList[0]?.originFileObj)
+                    setAudioName(fileList[0]?.name)
+                }
+                if (name[1] == 'mp4' || name[1] == 'mov') {
+                    formData.append('video', fileList[0]?.originFileObj)
+                    setVideoName(fileList[0]?.name)
 
-        console.log(fileList)
-        if (fileList[0]?.name) {
-            let name = fileList[0].name.split('.')
-            if (name[1] == 'wav') {
-                formData.append('audio', fileList[0]?.originFileObj)
+                }
             }
-            if (name[1] == 'mp4' || name[1] == 'mov') {
-                formData.append('video', fileList[0]?.originFileObj)
-            }
-        }
-        if (fileList[1]?.name) {
-            let name = fileList[1].name.split('.')
-            if (name[1] == 'wav') {
-                formData.append('audio', fileList[0]?.originFileObj)
-            }
-            if (name[1] == 'mp4' || name[1] == 'mov') {
-                formData.append('video', fileList[0]?.originFileObj)
-            }
-        }
-        let result = upload(formData)
+            if (fileList[1]?.name) {
+                let name = fileList[1].name.split('.')
+                if (name[1] == 'wav') {
+                    formData.append('audio', fileList[0]?.originFileObj)
+                    setAudioName(fileList[0]?.name)
 
+                }
+                if (name[1] == 'mp4' || name[1] == 'mov') {
+                    formData.append('video', fileList[0]?.originFileObj)
+                    setVideoName(fileList[0]?.name)
+
+                }
+            }
+            let result = upload(formData)
+        }
+        else {
+            message.error(`Upload one audio and one video file`);
+        }
     };
 
     return (
