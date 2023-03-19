@@ -1,11 +1,14 @@
 import React, { useState } from "react";
-import { Button, Upload, Card, Row, Col, Modal, message, Spin } from 'antd';
+import { Button, Upload, Card, Row, Col, Modal, message, Spin, Input, Select } from 'antd';
 import { upload, process } from '../../../services/api'
 import { PlusOutlined } from '@ant-design/icons'
 import logo from '../../../assets/logo.png'
 import './upload.css'
 
+const Option = { Select }
+
 export default function FileUpload() {
+
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
@@ -13,6 +16,11 @@ export default function FileUpload() {
     const [audioName, setAudioName] = useState('')
     const [videoName, setVideoName] = useState('')
     const [loading, setLoading] = useState(false)
+    const [excelUrl, setExcelUrl] = useState('')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [isSubmit, setIsSubmit] = useState(false)
+    const [processMessage, setProcessMessage] = useState('Uploading Files')
 
 
     const dummyRequest = ({ file, onSuccess }) => {
@@ -56,16 +64,28 @@ export default function FileUpload() {
             strokeWidth: 3,
             format: percent => `${parseFloat(percent.toFixed(2))}%`,
         },
-        // beforeUpload: (file) => {
-        //     console.log(file)
-        //     const isWav = file.type === "audio/wav" || file.type === "video/mp4";
-        //     if (!isWav) {
-        //         message.error(`${file.name} is not supported`);
-        //     }
-        //     console.log(isWav || Upload.LIST_IGNORE)
-        //     return isWav || Upload.LIST_IGNORE;
-        // }
+        maxCount: 2
+
     };
+    const processFiles = async () => {
+
+        let req = {
+            video_filename: videoName,
+            audio_filename: audioName,
+            google_sheet: excelUrl,
+            email_id: email,
+            password: password
+
+        }
+        let process_result = await process(req)
+        if (process_result.message == 'Sucess and email sent') {
+            message.success(`Email sent`);
+        }
+        else {
+            message.err(`Error in sending email`);
+            setLoading(false)
+        }
+    }
     const handleSubmit = async () => {
         setLoading(true)
         if (fileList.length !== 2) {
@@ -80,26 +100,16 @@ export default function FileUpload() {
 
         if (!audioFile || !videoFile) { message.error('Upload one audio and one video file with valid extensions'); return; }
         const formData = new FormData(); formData.append('audio', audioFile.originFileObj);
-        formData.append('video', videoFile.originFileObj); setAudioName(audioFile.name.split('.')[0]); setVideoName(videoFile.name.split('.')[0]);
+        formData.append('video', videoFile.originFileObj);
         let result = await upload(formData);
         try {
             if (result.audio && result.video) {
-                console.log(audioName, videoName)
                 let audio_split = audioFile.name.split('.')
                 let video_split = videoFile.name.split('.')
-
-                let req = {
-                    video_filename: video_split[0],
-                    audio_filename: audio_split[0]
-                }
-                let process_result = await process(req)
-                console.log(process_result)
-                if (process_result.message == 'Sucess and email sent') {
-                    message.success(`Email sent`);
-                }
-                else {
-                    setLoading(false)
-                }
+                setAudioName(audio_split[0])
+                setVideoName(video_split[0])
+                setIsSubmit(true)
+                setProcessMessage('Processing Files and sending email')
             }
         }
         catch (err) {
@@ -112,121 +122,90 @@ export default function FileUpload() {
 
     }
 
-    // const handleSubmit = async () => {
-    //     setLoading(true)
-
-    //     if ((fileList[0].name.split('.')[1] == 'wav' || fileList[1].name.split('.')[1] == 'wav') && (fileList[1].name.split('.')[1] == 'mp4' || fileList[0].name.split('.')[1] == 'mp4' || fileList[1].name.split('.')[1] == 'mov' || fileList[0].name.split('.')[1] == 'mov')) {
-    //         let formData = new FormData();
-    //         if (fileList[0]?.name) {
-    //             let name = fileList[0].name.split('.')
-
-    //             if (name[1] == 'wav') {
-    //                 formData.append('audio', fileList[0]?.originFileObj)
-    //                 setAudioName(fileList[0]?.name)
-    //             }
-    //             if (name[1] == 'mp4' || name[1] == 'mov') {
-    //                 formData.append('video', fileList[0]?.originFileObj)
-    //                 setVideoName(fileList[0]?.name)
-    //             }
-    //         }
-    //         if (fileList[1]?.name) {
-    //             let name = fileList[1].name.split('.')
-    //             if (name[1] == 'wav') {
-    //                 formData.append('audio', fileList[1]?.originFileObj)
-
-    //                 setAudioName(fileList[1]?.name)
-
-    //             }
-    //             if (name[1] == 'mp4' || name[1] == 'mov') {
-    //                 formData.append('video', fileList[1]?.originFileObj)
-    //                 console.log(fileList[1]?.name)
-    //                 setVideoName(fileList[1]?.name)
-
-    //             }
-    //         }
-    //         try {
-    //             let result = await upload(formData);
-    //             if (result.audio && result.video) {
-    //                 console.log(audioName, videoName)
-    //                 let audio_split = audioName.split('.')
-    //                 let video_split = videoName.split('.')
-
-    //                 let req = {
-    //                     video_filename: video_split[0],
-    //                     audio_filename: audio_split[0]
-    //                 }
-    //                 let process_result = await process(req)
-    //                 console.log(process_result)
-
-    //                 if (process_result.message == 'Sucess and email sent') {
-    //                     message.error(`Email sent`);
-    //                 }
-    //             }
-    //         }
-    //         catch (err) {
-    //             message.error(err);
-    //         }
-    //         finally {
-    //             setLoading(true)
-    //         }
-    //     }
-    //     else {
-    //         message.error(`Upload one audio and one video file`);
-    //     }
-    // };
 
     return (
         <>
-            <div style={{ backgroundColor: "#EAF7FF" }}>
-                <span className="header">
-                    {/* <span className="header_font">
-                        UClone
-                    </span> */}
-                    <img src={logo} style={{ display: 'inline-block', height: '90px', width: '90px', margin: '0' }} />
-                </span>
-                <br />
-                <Card className="upload_card" title="Upload Files">
-                    <div>
-                        <Row>
-                            <Col span={8}>
-                                Upload Audio and Video files (.wav .mp4 .mov supported only)
-                            </Col>
-                        </Row>
-                        <br />
-                        <Row>
+            <Spin tip={processMessage} size="large" style={{ fontSize: '40px', marginTop: '150px', zIndex: -1, overflow: 'auto' }} spinning={loading} >
+                <div style={{ backgroundColor: "#EAF7FF" }}>
+                    <span className="header">
+                        <img src={logo} style={{ display: 'inline-block', height: '90px', width: '90px', margin: '0' }} />
+                    </span>
+                    <br />
+                    <Card className="upload_card" title="Upload Files">
+                        <div>
+                            <Row>
+                                <Col span={8}>
+                                    Upload Audio and Video files (.wav .mp4 .mov supported only)
+                                </Col>
+                            </Row>
+                            <br />
+                            <Row>
+                                <Col span={4}>
+                                    <Upload
+                                        name="avatar"
+                                        listType="picture-card"
+                                        className="avatar-uploader"
+                                        {...props}
+                                    >
+                                        <PlusOutlined />
+                                    </Upload>
+                                </Col>
+                            </Row>
+                            <Row style={{ marginTop: '5px' }}>
+                                <Col span={4}>
+                                    <Button disabled={fileList.length == 2 ? false : true} onClick={() => handleSubmit()} className="button_upload">Upload Files</Button>
+                                </Col>
+                            </Row>
+                            <br />
+                            <Row>
+                                <Col span={12}>
+                                    Upload Excel Sheet URL
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={10}>
+                                    <Input value={excelUrl} onChange={(e) => setExcelUrl(e.target.value)} />
+                                </Col>
+                            </Row>
+                            <br />
+                            <Row>
+                                <Col span={10}>
+                                    Email
+                                </Col>
+                                &nbsp;&nbsp;&nbsp;
+                                <Col span={10}>
+                                    Password
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={10}>
+                                    <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                                </Col>&nbsp;&nbsp;&nbsp;
+                                <Col span={10}>
+                                    <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                                </Col>
+                            </Row>
+                        </div>
+                        <Row style={{ marginTop: '50px' }}>
                             <Col span={4}>
-                                <Upload
-                                    name="avatar"
-                                    listType="picture-card"
-                                    className="avatar-uploader"
-                                    {...props}
-                                >
-                                    <PlusOutlined />
-                                </Upload>
+                                <Button disabled={!isSubmit} onClick={() => processFiles()} className="button_upload">Submit</Button>
                             </Col>
                         </Row>
-                    </div>
-                    <Row style={{ marginTop: '50px' }}>
-                        <Col span={4}>
-                            <Button disabled={fileList.length == 2 ? false : true} onClick={() => handleSubmit()} className="button_upload">Submit</Button>
-                        </Col>
-                        {/* <Col span={4}>
-                        <Button className="button_upload">Reset</Button>
-                    </Col> */}
-                    </Row>
-                    {loading ? <center><Spin tip="Processing" size="large" style={{ fontSize: '40px', zIndex: -1, overflow: 'auto' }} /></center> : <></>}
+                        {loading ? <center></center> : <></>}
 
-                </Card>
+                    </Card>
 
-                <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
-                    <img
-                        alt="example"
-                        style={{
-                            width: '100%',
-                        }}
-                        src={previewImage}
-                    />
-                </Modal>
-            </div></>
+                    <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
+                        <img
+                            alt="example"
+                            style={{
+                                width: '100%',
+                            }}
+                            src={previewImage}
+                        />
+                    </Modal>
+                </div>
+            </Spin >
+        </>
     )
 }
